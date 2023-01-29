@@ -1,78 +1,71 @@
-use std::{str::{self,FromStr}, fmt::Display};
 use crate::error::PngError;
+use std::{
+    fmt::Display,
+    str::{self, FromStr},
+};
 
-
-
-
-#[derive(PartialEq,Debug)]
-pub struct ChunkType{
-  inner: [u8;4]
+#[derive(PartialEq, Debug)]
+pub struct ChunkType {
+    inner: [u8; 4],
 }
 
 impl ChunkType {
-  pub fn bytes(&self) -> [u8;4] {
-    self.inner
-  }
-  pub fn is_critical(&self) -> bool {
-    let first = self.inner[0];
-    first.is_ascii_uppercase()
-  }
-
-  pub fn is_public(&self) -> bool {
-    let second = self.inner[1];
-    second.is_ascii_uppercase()
-  }
-
-  pub fn is_reserved_bit_valid(&self) -> bool {
-    let third = self.inner[2];
-    third.is_ascii_uppercase()
-  }
-
-  pub fn is_safe_to_copy(&self) -> bool {
-    let last = self.inner[3];
-    last.is_ascii_lowercase()
-  }
-
-  pub fn is_valid(&self) -> bool {
-    self.is_reserved_bit_valid()
-    
-  }
-
-}
-
-
-
-impl TryFrom<[u8;4]> for ChunkType {
-  type Error = PngError;
-  fn try_from(value: [u8;4]) -> Result<Self, Self::Error> {
-    let flag = value.iter().all(|&x| x.is_ascii_alphabetic());
-    if !flag {
-      return Err(PngError::ChunkTypeError)
+    pub fn bytes(&self) -> [u8; 4] {
+        self.inner
     }
-    Ok(ChunkType{inner: value})
-  }
-}
-
-impl FromStr  for ChunkType {
-  type Err = PngError;
-  fn from_str(s: &str) -> Result<Self, Self::Err> {
-    if s.len() != 4 {
-      return Err(PngError::ChunkTypeError)
+    pub fn is_critical(&self) -> bool {
+        let first = self.inner[0];
+        first.is_ascii_uppercase()
     }
-    let arr :[u8;4]= s.as_bytes().try_into().unwrap();
-    ChunkType::try_from(arr)
-  }
+
+    pub fn is_public(&self) -> bool {
+        let second = self.inner[1];
+        second.is_ascii_uppercase()
+    }
+
+    pub fn is_reserved_bit_valid(&self) -> bool {
+        let third = self.inner[2];
+        third.is_ascii_uppercase()
+    }
+
+    pub fn is_safe_to_copy(&self) -> bool {
+        let last = self.inner[3];
+        last.is_ascii_lowercase()
+    }
+
+    pub fn is_valid(&self) -> bool {
+        self.is_reserved_bit_valid()
+    }
 }
 
+impl TryFrom<[u8; 4]> for ChunkType {
+    type Error = PngError;
+    fn try_from(value: [u8; 4]) -> Result<Self, Self::Error> {
+        let flag = value.iter().all(|&x| x.is_ascii_alphabetic());
+        if !flag {
+            return Err(PngError::ChunkTypeError);
+        }
+        Ok(ChunkType { inner: value })
+    }
+}
+
+impl FromStr for ChunkType {
+    type Err = PngError;
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        if s.len() != 4 {
+            return Err(PngError::ChunkTypeError);
+        }
+        let arr: [u8; 4] = s.as_bytes().try_into().unwrap();
+        ChunkType::try_from(arr)
+    }
+}
 
 impl Display for ChunkType {
-  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-    let s = String::from_utf8(self.bytes().to_vec()).unwrap();
-      write!(f,"{}",s)
-  }
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let s = String::from_utf8(self.bytes().to_vec()).unwrap();
+        write!(f, "{}", s)
+    }
 }
-
-
 
 #[cfg(test)]
 mod tests {
@@ -85,7 +78,7 @@ mod tests {
         let expected = [82, 117, 83, 116];
         let actual = ChunkType::try_from([82, 117, 83, 116]).unwrap();
 
-        assert_eq!(expected, actual.bytes()); 
+        assert_eq!(expected, actual.bytes());
     }
 
     #[test]
